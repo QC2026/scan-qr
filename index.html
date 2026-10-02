@@ -3,49 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QC2026 SCAN SYSTEM</title>
+<title>QC2026 - PT URIPSUGIARTO</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f0f2f5;padding:15px}
-.header{background:#198754;color:white;padding:15px;border-radius:12px;text-align:center;margin-bottom:15px}
-.header img{width:70px;background:white;border-radius:50%;padding:5px}
-.card{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:15px}
-.btn{display:block;background:#198754;color:white;padding:16px;text-align:center;border-radius:10px;text-decoration:none;font-weight:bold;margin:10px 0;font-size:18px}
-.btn2{background:#0d6efd}
-.btn3{background:#6c757d}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid .btn{font-size:14px;padding:12px}
-.info{background:#e7f3ff;padding:12px;border-radius:8px;border-left:4px solid #0d6efd;margin:10px 0;font-size:14px}
-h2{margin:10px 0}
+body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ffd700;padding:12px}
+.header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:12px}
+.logo{width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#b91c1c;overflow:hidden}
+.pt{background:#b91c1c;border:2px solid gold;border-radius:10px;padding:8px 12px;color:white;font-weight:900;flex:1;text-align:center;letter-spacing:1px}
+.box{background:#111;border:2px solid #c9a84c;border-radius:12px;padding:12px;margin-top:12px}
+.btn{display:block;background:linear-gradient(180deg,#ffd700,#c9a84c);color:black;padding:16px;text-align:center;border-radius:12px;text-decoration:none;font-weight:900;margin-top:10px;font-size:16px}
+.btn2{background:#222;color:#ffd700;border:1px solid #c9a84c;font-size:14px;padding:12px}
+.btn3{background:#1a1a1a;color:white;border:1px solid #444}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.info{background:#111;padding:10px;border-radius:8px;border-left:4px solid gold;margin-top:12px;font-size:11px;color:#888}
 </style>
 </head>
 <body>
 <div class="header">
-<img src="logo.png" onerror="this.style.display='none'">
-<h2>QC2026</h2>
-<p>QUALITY CONTROL SCAN SYSTEM</p>
+<div class="logo"><img src="logo.png" style="width:100%;height:100%"></div>
+<div class="pt">PT. URIPSUGIARTO</div>
 </div>
 
-<div class="card">
-<h3>📷 SCAN OPERATION</h3>
-<a href="scan.html" class="btn">▶️ MULAI SCAN QR</a>
+<div class="box">
+<div style="font-weight:900;color:#ffdf8a">SCAN OPERATION</div>
+<a href="scan.html?type=GL" class="btn" onclick="localStorage.setItem('scan_type','GL')">▶️ MULAI SCAN - GL</a>
 <div class="grid">
-<a href="scan.html?type=QFLAG" class="btn btn2">Q-Flag</a>
-<a href="scan.html?type=IPC" class="btn btn2">IPC</a>
-<a href="scan.html?type=SKT" class="btn btn2">SKT</a>
-<a href="scan.html?type=SKM" class="btn btn2">SKM</a>
+<a href="scan.html?type=KMS" class="btn btn2" onclick="localStorage.setItem('scan_type','KMS')">KMS</a>
+<a href="scan.html?type=PACK" class="btn btn2" onclick="localStorage.setItem('scan_type','PACK')">PACK</a>
+<a href="scan.html?type=BDL" class="btn btn2" onclick="localStorage.setItem('scan_type','BDL')">BDL</a>
+<a href="scan.html?type=BALL" class="btn btn2" onclick="localStorage.setItem('scan_type','BALL')">BALL</a>
 </div>
 </div>
 
-<div class="card">
-<h3>📊 DATA & LAPORAN</h3>
+<div class="box">
+<div style="font-weight:900;color:#ffdf8a">DATA & LAPORAN</div>
 <a href="history.html" class="btn btn3">📋 HISTORY SCAN</a>
 <a href="dashboard.html" class="btn btn3">📈 DASHBOARD QC</a>
 </div>
 
 <div class="info">
-<b>Versi:</b> QC2026 v2.0 | <b>User:</b> QC Operator<br>
-Status: <span style="color:green;font-weight:bold">● ONLINE</span>
+<b style="color:gold">PT. URIPSUGIARTO</b> | QC2026 v2.0<br>
+Status: <span style="color:#0f0">● ONLINE</span> | Flow sesuai scan.html
 </div>
 </body>
 </html>
