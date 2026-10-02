@@ -33,30 +33,43 @@ function renderSteps(){
  let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;
  document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`: `✅ SELESAI - AUTO SIMPAN...`;
 }
-let lastScan = "";
+let scannedList = [];
 let isPause = false;
+let cur = 0;
 
-function onScanSuccess(decoded){
+function onScanSuccess(decodedText){
  if(isPause) return;
- if(decoded == lastScan) return; // biar gak dobel
- if(cur>=flow.length) return;
 
- lastScan = decoded;
- res[flow[cur]]=decoded;
- cur++;
- renderSteps();
+ // 1. CEK KEMBAR -> QTY NAMBAH
+ let existing = scannedList.find(item => item.code === decodedText);
+ if (existing) {
+   existing.qty += 1;
+ } else {
+   scannedList.push({ code: decodedText, qty: 1 });
+ }
+ renderTable();
+
  if(navigator.vibrate) navigator.vibrate(200);
 
- // KASIH REM 1.5 DETIK BIAR SEMPET GESER QR
+ // 2. REM BIAR GAK DOBEL BACA
  isPause = true;
- document.getElementById('status').innerHTML = `✅ ${decoded} <br><small style="color:white">Tunggu 1.5 detik geser QR...</small>`;
+ cur++;
+ renderSteps();
 
  setTimeout(()=>{
    isPause = false;
-   if(cur>=flow.length){
-     autoSave();
-   } else {
-     document.getElementById('status').innerHTML=`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`;
+
+   // 3. AUTO BALIK KE HALAMAN 1 KALO SELESAI
+   if(cur >= flow.length){
+     document.getElementById('status').innerHTML = `✅ Selesai... balik ke halaman 1`;
+
+     setTimeout(()=>{
+       cur = 0;
+       scannedList = [];
+       renderSteps(); // balik ke halaman 1
+       renderTable();
+       document.getElementById('status').innerHTML = `Siap scan lagi`;
+     }, 2000);
    }
  }, 1500);
 }
