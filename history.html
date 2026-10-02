@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>History</title>
+<style>
+body{background:#111;color:white;padding:15px;font-family:sans-serif}
+.card{background:#1e1e1e;padding:12px;border-radius:12px;margin-bottom:10px;border-left:4px solid #c9a84c}
+.badge{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:900;display:inline-block}
+.valid{background:#0f0;color:black}
+.sama{background:yellow;color:black}
+.header{display:flex;justify-content:space-between;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+th{background:#333;color:gold;padding:6px}
+td{padding:6px;border:1px solid #333}
+</style></head><body>
+<button onclick="location.href='index.html'" style="background:#333;color:white;border:none;padding:8px 12px;border-radius:8px">← Kembali</button>
+<h3 style="margin:15px 0">RIWAYAT - ADMIN VIEW</h3>
+<div id="list"></div>
+
+<script>
+let all=JSON.parse(localStorage.getItem('riwayat')||'[]');
+let h='';
+
+if(all.length==0){
+  h='<p style="text-align:center;color:#666">Belum ada data</p>';
+} else {
+  // URUTAN TERBARU DI ATAS
+  all.slice().reverse().forEach(d=>{
+    let badgeClass = d.STATUS_JEDA=='SAMA HARI' ? 'sama' : 'valid';
+    let badgeText = d.STATUS_JEDA || 'VALID';
+    let borderColor = d.STATUS_JEDA=='SAMA HARI' ? 'yellow' : '#0f0';
+    
+    h+=`<div class="card" style="border-left-color:${borderColor}">
+      <div class="header">
+        <b>QR BAK: ${d.QR_BAK||'-'}</b>
+        <span class="badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div style="margin-top:8px;color:#ccc;font-size:12px">
+        BAGIAN: ${d.BAGIAN||'-'} | TGL INPUT: ${d.TANGGAL||''}
+      </div>
+      <table>
+        <tr><th>STEP</th><th>ID</th><th>TGL</th></tr>
+        <tr><td>GL</td><td>${d.ID_GL||'-'} ${d.ID_GL2?'/ '+d.ID_GL2:''}</td><td>${d.TGL_GL||'-'}</td></tr>
+        <tr><td>KMS</td><td>${d.ID_KMS||'-'}</td><td>${d.TGL_KMS||'-'}</td></tr>
+        <tr><td>PACK</td><td>${d.ID_PACK||'-'}</td><td>-</td></tr>
+        <tr><td>BDL</td><td>${d.ID_BDL||'-'}</td><td>-</td></tr>
+        <tr><td>BALL</td><td>${d.ID_BALL||'-'}</td><td>-</td></tr>
+      </table>
+    </div>`;
+  });
+}
+
+document.getElementById('list').innerHTML=h;
+</script>
+</body></html>
