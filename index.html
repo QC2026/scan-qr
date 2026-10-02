@@ -1,49 +1,43 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QC2026 - PT URIPSUGIARTO</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PT URIP SUGIARTO</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ffd700;padding:12px}
-.header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:12px}
-.logo{width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#b91c1c;overflow:hidden}
-.pt{background:#b91c1c;border:2px solid gold;border-radius:10px;padding:8px 12px;color:white;font-weight:900;flex:1;text-align:center;letter-spacing:1px}
+body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12px}
+.header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:10px}
+.pt{background:#b91c1c;border:2px solid gold;border-radius:10px;padding:8px 12px;color:white;font-weight:900;flex:1;text-align:center}
 .box{background:#111;border:2px solid #c9a84c;border-radius:12px;padding:12px;margin-top:12px}
-.btn{display:block;background:linear-gradient(180deg,#ffd700,#c9a84c);color:black;padding:16px;text-align:center;border-radius:12px;text-decoration:none;font-weight:900;margin-top:10px;font-size:16px}
-.btn2{background:#222;color:#ffd700;border:1px solid #c9a84c;font-size:14px;padding:12px}
-.btn3{background:#1a1a1a;color:white;border:1px solid #444}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.info{background:#111;padding:10px;border-radius:8px;border-left:4px solid gold;margin-top:12px;font-size:11px;color:#888}
+.btn{width:100%;padding:18px;border:none;border-radius:12px;font-weight:900;font-size:17px;margin-top:12px}
+.btn-gl{background:linear-gradient(180deg,#ffd700,#c9a84c);color:black;border:2px solid white; font-size:19px}
+.btn-other{background:#0d2a54;color:white;border:2px solid #2a5aa8}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo"><img src="logo.png" style="width:100%;height:100%"></div>
-<div class="pt">PT. URIPSUGIARTO</div>
-</div>
+<div class="header"><div style="width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center"><img src="logo.png" style="width:100%;height:100%;border-radius:50%"></div><div class="pt">PT. URIPSUGIARTO<br><span style="font-size:10px">SCAN SYSTEM</span></div></div>
 
 <div class="box">
-<div style="font-weight:900;color:#ffdf8a">SCAN OPERATION</div>
-<a href="scan.html?type=GL" class="btn" onclick="localStorage.setItem('scan_type','GL')">▶️ MULAI SCAN - GL</a>
-<div class="grid">
-<a href="scan.html?type=KMS" class="btn btn2" onclick="localStorage.setItem('scan_type','KMS')">KMS</a>
-<a href="scan.html?type=PACK" class="btn btn2" onclick="localStorage.setItem('scan_type','PACK')">PACK</a>
-<a href="scan.html?type=BDL" class="btn btn2" onclick="localStorage.setItem('scan_type','BDL')">BDL</a>
-<a href="scan.html?type=BALL" class="btn btn2" onclick="localStorage.setItem('scan_type','BALL')">BALL</a>
-</div>
+<h3 style="margin:0;text-align:center;color:#ffdf8a">PILIH JENIS SCAN</h3>
+
+<!-- URUTAN GL DULU SESUAI PERMINTAAN MIMIN -->
+<button onclick="mulaiScan('GL')" class="btn btn-gl">1️⃣ SCAN GL<br><span style="font-size:12px">QR BAK + ID PC + ID GL 1 + ID GL 2</span></button>
+
+<button onclick="mulaiScan('KMS')" class="btn btn-other">2️⃣ SCAN KMS<br><span style="font-size:12px">QR BAK + ID KMS</span></button>
+
+<button onclick="mulaiScan('PACK')" class="btn btn-other">3️⃣ SCAN PACK<br><span style="font-size:12px">QR BAK + ID PACK</span></button>
+
+<button onclick="mulaiScan('BDL')" class="btn btn-other">4️⃣ SCAN BDL<br><span style="font-size:12px">QR BAK + ID BDL</span></button>
+
+<button onclick="mulaiScan('BALL')" class="btn btn-other">5️⃣ SCAN BALL<br><span style="font-size:12px">QR BAK + ID BALL + NO BOX</span></button>
+
+<button onclick="location.href='riwayat.html'" class="btn" style="background:#222;color:white;margin-top:20px">📋 LIHAT RIWAYAT</button>
 </div>
 
-<div class="box">
-<div style="font-weight:900;color:#ffdf8a">DATA & LAPORAN</div>
-<a href="history.html" class="btn btn3">📋 HISTORY SCAN</a>
-<a href="dashboard.html" class="btn btn3">📈 DASHBOARD QC</a>
-</div>
-
-<div class="info">
-<b style="color:gold">PT. URIPSUGIARTO</b> | QC2026 v2.0<br>
-Status: <span style="color:#0f0">● ONLINE</span> | Flow sesuai scan.html
-</div>
+<script>
+function mulaiScan(tipe){
+  localStorage.setItem('scan_type', tipe);
+  location.href='scan.html';
+}
+</script>
 </body>
 </html>
