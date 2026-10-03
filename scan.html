@@ -39,7 +39,7 @@ function renderSteps(){
 function onScanSuccess(decoded){
  if(isPause) return;
  const now = Date.now();
- if(now - lastScanTime < 1500) return; // REM 1.5 DETIK BIAR GAK DOBEL PAS BARU DIANGKAT - ganti 800 kalo mau cepet
+ if(now - lastScanTime < 1500) return; 
  lastScanTime = now;
  isPause = true;
 
@@ -65,7 +65,7 @@ function inputManual(){
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
- html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:280,height:280}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+ html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
