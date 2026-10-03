@@ -63,35 +63,26 @@ function inputManual(){
 }
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 function startCam(){
- html5QrcodeScanner = new Html5Qrcode("reader", {
-   formatsToSupport: [
-     Html5QrcodeSupportedFormats.QR_CODE,
-     Html5QrcodeSupportedFormats.CODE_128,
-     Html5QrcodeSupportedFormats.CODE_39,
-     Html5QrcodeSupportedFormats.CODE_93
-   ]
- });
+ html5QrcodeScanner = new Html5Qrcode("reader");
 
- // fungsi kotak dinamis
  const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
      let curType = flow[cur] || "";
-     // Kalau lagi scan QR BAK -> kotak GEDE 70%
      if(curType.includes("QR CODE BAK")){
          let size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.70);
          return { width: size, height: size };
      } else {
-         // Kalau ID PC / GL (kecil) -> kotak KECIL memanjang
          return { width: 280, height: 130 };
      }
  };
 
  html5QrcodeScanner.start(
-   { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+   { facingMode: "environment" },
    {
      fps: 25,
-     qrbox: qrboxFunction, // pake fungsi pinter tadi
-     aspectRatio: 1.777,
-     experimentalFeatures: { useBarCodeDetectorIfSupported: false }
+     qrbox: qrboxFunction,
+     experimentalFeatures: {
+         useBarCodeDetectorIfSupported: false
+     }
    },
    onScanSuccess,
    ()=>{}
@@ -99,7 +90,7 @@ function startCam(){
    document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';
  });
 }
-async function autoSave(){
+ async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
   let bagian = localStorage.getItem('bagian')||TYPE;
   let tgl_input = localStorage.getItem('tgl_input')|| new Date().toISOString().split('T')[0];
