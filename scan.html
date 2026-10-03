@@ -33,45 +33,71 @@ function renderSteps(){
  let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;
  document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`: `✅ SELESAI - AUTO SIMPAN...`;
 }
-let scannedList = [];
-let isPause = false;
+<script>
+let flow = ["pc", "gl1", "gl2"]; // urutan scan
 let cur = 0;
+let res = {};
+let scannedList = [];
+let lastScanTime = 0;
+let isPause = false;
+
+function renderSteps(){
+  document.querySelectorAll('[id^="step-"]').forEach(el => el.style.display = 'none');
+  if(cur < flow.length){
+    let stepEl = document.getElementById('step-' + flow[cur]);
+    if(stepEl) stepEl.style.display = 'block';
+    document.getElementById('status').innerText = `Scan ${flow[cur].toUpperCase()}...`;
+  } else {
+    document.getElementById('status').innerText = `✅ Selesai`;
+  }
+}
+
+function renderTable(){
+  let html = "";
+  scannedList.forEach((item, i) => {
+    html += `<tr><td>${i+1}</td><td>${item.code}</td><td>${item.qty}x</td></tr>`;
+  });
+  document.getElementById('table-body').innerHTML = html;
+}
 
 function onScanSuccess(decodedText){
- if(isPause) return;
+  if(isPause) return;
+  const now = Date.now();
+  if(now - lastScanTime < 1500) return; 
+  lastScanTime = now;
 
- // 1. CEK KEMBAR -> QTY NAMBAH
- let existing = scannedList.find(item => item.code === decodedText);
- if (existing) {
-   existing.qty += 1;
- } else {
-   scannedList.push({ code: decodedText, qty: 1 });
- }
- renderTable();
+  if(navigator.vibrate) navigator.vibrate(200);
 
- if(navigator.vibrate) navigator.vibrate(200);
+  // Simpan buat PC GL1 GL2
+  if(cur < flow.length){
+    res[flow[cur]] = decodedText;
+  }
+  let existing = scannedList.find(item => item.code === decodedText);
+  if(existing){
+    existing.qty += 1;
+  } else {
+    scannedList.push({ code: decodedText, qty: 1 });
+  }
 
- // 2. REM BIAR GAK DOBEL BACA
- isPause = true;
- cur++;
- renderSteps();
+  renderTable();
+  cur++;
+  renderSteps();
 
- setTimeout(()=>{
-   isPause = false;
-
-   // 3. AUTO BALIK KE HALAMAN 1 KALO SELESAI
-   if(cur >= flow.length){
-     document.getElementById('status').innerHTML = `✅ Selesai... balik ke halaman 1`;
-
-     setTimeout(()=>{
-       cur = 0;
-       scannedList = [];
-       renderSteps(); // balik ke halaman 1
-       renderTable();
-       document.getElementById('status').innerHTML = `Siap scan lagi`;
-     }, 2000);
-   }
- }, 1500);
+  // Rem biar gak dobel pas baru diangkat
+  isPause = true;
+  setTimeout(()=>{
+    isPause = false;
+    if(cur >= flow.length){
+      setTimeout(()=>{
+        cur = 0;
+        res = {};
+        scannedList = [];
+        renderSteps();
+        renderTable();
+        document.getElementById('status').innerText = "Siap scan lagi";
+      }, 2000);
+    }
+  }, 1500);
 }
 function inputManual(){
  let v=document.getElementById('manual').value.trim();
