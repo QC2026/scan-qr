@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12px}
 .header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:10px}
@@ -17,7 +17,7 @@ input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;
 <div style="font-weight:900;color:#ffdf8a" id="tipe">SCAN</div>
 <div id="steps" style="margin-top:8px"></div>
 <div id="reader"></div>
-<input id="manual" placeholder="Ketik manual jika QR rusak">
+<input id="manual" placeholder="Ketik manual jika QR rusak / laminating">
 <button onclick="inputManual()" class="btn" style="background:#333;color:white">INPUT MANUAL</button>
 <div id="status" style="text-align:center;margin-top:10px;color:#0f0;font-weight:900"></div>
 <button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG</button>
@@ -38,30 +38,26 @@ function renderSteps(){
 function onScanSuccess(decoded){
  if(isPause) return;
  const now = Date.now();
- if(now - lastScanTime < 800) return; 
+ if(now - lastScanTime < 1500) return;
  lastScanTime = now;
  isPause = true;
-
  if(cur>=flow.length) return;
  res[flow[cur]]=decoded; cur++; renderSteps();
  if(navigator.vibrate) navigator.vibrate(200);
-
- if(cur>=flow.length){
-   autoSave();
- } else {
-   setTimeout(()=>{ isPause = false; }, 800);
- }
+ if(cur>=flow.length){ autoSave(); } else { setTimeout(()=>{ isPause = false; }, 1500); }
 }
 function inputManual(){
  let v=document.getElementById('manual').value.trim();
  if(!v) return alert('Isi dulu');
  const now = Date.now();
- if(now - lastScanTime < 800) return;
+ if(now - lastScanTime < 1500) return;
  lastScanTime = now;
  onScanSuccess(v); document.getElementById('manual').value='';
  isPause = false;
 }
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
+
+
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
 
@@ -71,18 +67,17 @@ function startCam(){
          let size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.70);
          return { width: size, height: size };
      } else {
-         return { width: 280, height: 130 };
+         
+         return { width: 200, height: 200 };
      }
  };
 
  html5QrcodeScanner.start(
-   { facingMode: "environment" },
+   { facingMode: "environment" }, 
    {
-     fps: 25,
+     fps: 10, 
      qrbox: qrboxFunction,
-     experimentalFeatures: {
-         useBarCodeDetectorIfSupported: false
-     }
+     experimentalFeatures: { useBarCodeDetectorIfSupported: false }
    },
    onScanSuccess,
    ()=>{}
@@ -90,7 +85,7 @@ function startCam(){
    document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';
  });
 }
- async function autoSave(){
+async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
   let bagian = localStorage.getItem('bagian')||TYPE;
   let tgl_input = localStorage.getItem('tgl_input')|| new Date().toISOString().split('T')[0];
@@ -112,7 +107,7 @@ function startCam(){
     all[idx].BAGIAN=bagian;
   }
   localStorage.setItem('riwayat',JSON.stringify(all));
-  const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec";
+  const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec";
   let kirim = { QR_BAK: qr, ID_PC: res['ID PC']||'', ID_GL: res['ID GL 1']||'', ID_GL2: res['ID GL 2']||'', ID_KMS: res['ID KMS']||'', ID_PACK: res['ID PACK']||'', ID_BDL: res['ID BDL']||'', ID_BALL: res['ID BALL']||'', NO_BOX: res['NO BOX']||'', BAGIAN: bagian, TGL_KMS: tgl_input, STATUS_JEDA: status_jeda };
   document.getElementById('status').innerText="⏳ AUTO KIRIM KE SHEET...";
   try { await fetch(GOOGLE_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(kirim)}); }catch(e){}
