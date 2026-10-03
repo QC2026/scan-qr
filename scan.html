@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="html5-qrcode.min.js"></script>
 <style>
 body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12px}
 .header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:10px}
@@ -17,7 +17,7 @@ input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;
 <div style="font-weight:900;color:#ffdf8a" id="tipe">SCAN</div>
 <div id="steps" style="margin-top:8px"></div>
 <div id="reader"></div>
-<input id="manual" placeholder="Ketik manual jika QR rusak / laminating">
+<input id="manual" placeholder="Ketik manual jika QR rusak">
 <button onclick="inputManual()" class="btn" style="background:#333;color:white">INPUT MANUAL</button>
 <div id="status" style="text-align:center;margin-top:10px;color:#0f0;font-weight:900"></div>
 <button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG</button>
@@ -25,7 +25,7 @@ input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;
 <button onclick="location.href='index.html'" class="btn" style="background:#b91c1c;color:white;border:2px solid gold">⬅ KEMBALI</button>
 
 <script>
-const TYPE=localStorage.getItem('scan_type')||'BALL';
+const TYPE=(localStorage.getItem('scan_type')||'BALL').toUpperCase();
 document.getElementById('tipe').innerText='SCAN: '+TYPE;
 const FLOWS={'GL':['QR CODE BAK','ID PC','ID GL 1','ID GL 2'],'KMS':['QR CODE BAK','ID KMS'],'PACK':['QR CODE BAK','ID PACK'],'BDL':['QR CODE BAK','ID BDL'],'BALL':['QR CODE BAK','ID BALL','NO BOX']};
 let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;
@@ -53,37 +53,23 @@ function inputManual(){
  if(now - lastScanTime < 1500) return;
  lastScanTime = now;
  onScanSuccess(v); document.getElementById('manual').value='';
- isPause = false;
 }
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
-
-// === INI YANG TAK BENERIN BUAT HP KENTANG + LAMINATING ===
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
-
- const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
-     let curType = flow[cur] || "";
-     if(curType.includes("QR CODE BAK")){
-         let size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.70);
-         return { width: size, height: size };
-     } else {
-         // QR kecil laminating -> kotak kecil 200x200 biar fokus, bukan gepeng
-         return { width: 200, height: 200 };
-     }
+ const qrboxFunction = function(vw,vh){
+   let t = flow[cur]||"";
+   if(t.includes("QR CODE BAK")){
+     let s = Math.floor(Math.min(vw,vh)*0.70);
+     return {width:s,height:s};
+   }
+   return {width:200,height:200};
  };
-
  html5QrcodeScanner.start(
-   { facingMode: "environment" }, 
-   {
-     fps: 10, 
-     qrbox: qrboxFunction,
-     experimentalFeatures: { useBarCodeDetectorIfSupported: false }
-   },
-   onScanSuccess,
-   ()=>{}
- ).catch(err=>{
-   document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';
- });
+   {facingMode:"environment"},
+   {fps:10,qrbox:qrboxFunction,experimentalFeatures:{useBarCodeDetectorIfSupported:false}},
+   onScanSuccess,()=>{}
+ ).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
