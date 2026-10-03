@@ -23,83 +23,40 @@ input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;
 <button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG</button>
 </div>
 <button onclick="location.href='index.html'" class="btn" style="background:#b91c1c;color:white;border:2px solid gold">⬅ KEMBALI</button>
-
 <script>
 const TYPE=(localStorage.getItem('scan_type')||'BALL').toUpperCase();
 document.getElementById('tipe').innerText='SCAN: '+TYPE;
 const FLOWS={'GL':['QR CODE BAK','ID PC','ID GL 1','ID GL 2'],'KMS':['QR CODE BAK','ID KMS'],'PACK':['QR CODE BAK','ID PACK'],'BDL':['QR CODE BAK','ID BDL'],'BALL':['QR CODE BAK','ID BALL','NO BOX']};
-let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;
-let lastScanTime = 0;
-let isPause = false;
-function renderSteps(){
- let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;
- document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`: `✅ SELESAI - AUTO SIMPAN...`;
-}
-function onScanSuccess(decoded){
- if(isPause) return;
- const now = Date.now();
- if(now - lastScanTime < 1500) return;
- lastScanTime = now;
- isPause = true;
- if(cur>=flow.length) return;
- res[flow[cur]]=decoded; cur++; renderSteps();
- if(navigator.vibrate) navigator.vibrate(200);
- if(cur>=flow.length){ autoSave(); } else { setTimeout(()=>{ isPause = false; }, 1500); }
-}
-function inputManual(){
- let v=document.getElementById('manual').value.trim();
- if(!v) return alert('Isi dulu');
- const now = Date.now();
- if(now - lastScanTime < 1500) return;
- lastScanTime = now;
- onScanSuccess(v); document.getElementById('manual').value='';
-}
+let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;let lastScanTime=0;let isPause=false;
+function renderSteps(){let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`:`✅ SELESAI - AUTO SIMPAN...`;}
+function onScanSuccess(decoded){if(isPause) return;const now=Date.now();if(now-lastScanTime<1500) return;lastScanTime=now;isPause=true;if(cur>=flow.length) return;res[flow[cur]]=decoded;cur++;renderSteps();if(navigator.vibrate) navigator.vibrate(200);if(cur>=flow.length){autoSave();}else{setTimeout(()=>{isPause=false;},1500);}}
+function inputManual(){let v=document.getElementById('manual').value.trim();if(!v) return alert('Isi dulu');const now=Date.now();if(now-lastScanTime<1500) return;lastScanTime=now;onScanSuccess(v);document.getElementById('manual').value='';}
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
-function startCam(){
- html5QrcodeScanner = new Html5Qrcode("reader");
- const qrboxFunction = function(vw,vh){
-   let t = flow[cur]||"";
-   if(t.includes("QR CODE BAK")){
-     let s = Math.floor(Math.min(vw,vh)*0.70);
-     return {width:s,height:s};
-   }
-   return {width:200,height:200};
- };
- html5QrcodeScanner.start(
-   {facingMode:"environment"},
-   {fps:10,qrbox:qrboxFunction,experimentalFeatures:{useBarCodeDetectorIfSupported:false}},
-   onScanSuccess,()=>{}
- ).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
-}
+function startCam(){html5QrcodeScanner=new Html5Qrcode("reader");const qrboxFunction=function(vw,vh){let t=flow[cur]||"";if(t.includes("QR CODE BAK")){let s=Math.floor(Math.min(vw,vh)*0.70);return{width:s,height:s};}return{width:200,height:200};};html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:qrboxFunction,experimentalFeatures:{useBarCodeDetectorIfSupported:false}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});}
 async function autoSave(){
-  if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
-  let bagian = localStorage.getItem('bagian')||TYPE;
-  let tgl_input = localStorage.getItem('tgl_input')|| new Date().toISOString().split('T')[0];
-  let all = JSON.parse(localStorage.getItem('riwayat')||'[]');
-  let qr = res['QR CODE BAK']||'';
-  let idx = all.findIndex(d => d.QR_BAK == qr &&!d.ID_BALL);
-  let status_jeda = 'VALID';
-  if(TYPE=='KMS' && idx!=-1 && all[idx].TGL_GL){
-    let tglGL = new Date(all[idx].TGL_GL); let tglKMS = new Date(tgl_input);
-    let jeda = Math.floor((tglKMS - tglGL)/(1000*60*60*24)); if(jeda==0) status_jeda='SAMA HARI';
-  }
+  if(html5QrcodeScanner){try{await html5QrcodeScanner.stop();}catch(e){}}
+  let bagian=localStorage.getItem('bagian')||TYPE;
+  let tgl_input=localStorage.getItem('tgl_input')||new Date().toISOString().split('T')[0];
+  let all=JSON.parse(localStorage.getItem('riwayat')||'[]');
+  let qr=res['QR CODE BAK']||'';
+  let idx=all.findIndex(d=>d.QR_BAK==qr&&!d.ID_BALL);
   if(idx==-1){
-    all.push({ QR_BAK: qr, ID_PC: res['ID PC']||'', ID_GL: res['ID GL 1']||'', ID_GL2: res['ID GL 2']||'', ID_KMS: TYPE=='KMS'?res['ID KMS']||'':'', ID_PACK: TYPE=='PACK'?res['ID PACK']||'':'', ID_BDL: TYPE=='BDL'?res['ID BDL']||'':'', ID_BALL: TYPE=='BALL'?(res['ID BALL']||res['NO BOX']||''):'', TGL_GL: TYPE=='GL'?tgl_input:'', TGL_KMS: TYPE=='KMS'?tgl_input:'', STATUS_JEDA: status_jeda, BAGIAN: bagian, TANGGAL: tgl_input });
-  } else {
-    if(TYPE=='KMS'){ all[idx].ID_KMS=res['ID KMS']||''; all[idx].TGL_KMS=tgl_input; all[idx].STATUS_JEDA=status_jeda; }
-    if(TYPE=='PACK'){ all[idx].ID_PACK=res['ID PACK']||''; }
-    if(TYPE=='BDL'){ all[idx].ID_BDL=res['ID BDL']||''; }
-    if(TYPE=='BALL'){ all[idx].ID_BALL=res['ID BALL']||res['NO BOX']||''; }
+    all.push({QR_BAK:qr,ID_PC:res['ID PC']||'',ID_GL:res['ID GL 1']||'',ID_GL2:res['ID GL 2']||'',ID_KMS:TYPE=='KMS'?res['ID KMS']||'':'',ID_PACK:TYPE=='PACK'?res['ID PACK']||'':'',ID_BDL:TYPE=='BDL'?res['ID BDL']||'':'',ID_BALL:TYPE=='BALL'?(res['ID BALL']||res['NO BOX']||''):'',TGL_GL:TYPE=='GL'?tgl_input:'',TGL_KMS:TYPE=='KMS'?tgl_input:'',BAGIAN:bagian,TANGGAL:tgl_input});
+  }else{
+    if(TYPE=='KMS'){all[idx].ID_KMS=res['ID KMS']||'';all[idx].TGL_KMS=tgl_input;}
+    if(TYPE=='PACK'){all[idx].ID_PACK=res['ID PACK']||'';}
+    if(TYPE=='BDL'){all[idx].ID_BDL=res['ID BDL']||'';}
+    if(TYPE=='BALL'){all[idx].ID_BALL=res['ID BALL']||res['NO BOX']||'';}
     all[idx].BAGIAN=bagian;
   }
   localStorage.setItem('riwayat',JSON.stringify(all));
-  const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec";
-  let kirim = { QR_BAK: qr, ID_PC: res['ID PC']||'', ID_GL: res['ID GL 1']||'', ID_GL2: res['ID GL 2']||'', ID_KMS: res['ID KMS']||'', ID_PACK: res['ID PACK']||'', ID_BDL: res['ID BDL']||'', ID_BALL: res['ID BALL']||'', NO_BOX: res['NO BOX']||'', BAGIAN: bagian, TGL_KMS: tgl_input, STATUS_JEDA: status_jeda };
+  const GOOGLE_URL="https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec";
+  let kirim={QR_BAK:qr,ID_PC:res['ID PC']||'',ID_GL:res['ID GL 1']||'',ID_GL2:res['ID GL 2']||'',ID_KMS:res['ID KMS']||'',ID_PACK:res['ID PACK']||'',ID_BDL:res['ID BDL']||'',ID_BALL:res['ID BALL']||'',NO_BOX:res['NO BOX']||'',BAGIAN:bagian,TGL_KMS:tgl_input};
   document.getElementById('status').innerText="⏳ AUTO KIRIM KE SHEET...";
-  try { await fetch(GOOGLE_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(kirim)}); }catch(e){}
+  try{await fetch(GOOGLE_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(kirim)});}catch(e){}
   alert('✅ Auto Tersimpan! '+TYPE+' - '+qr);
   location.href='index.html';
 }
-renderSteps(); startCam();
+renderSteps();startCam();
 </script>
 </body></html>
