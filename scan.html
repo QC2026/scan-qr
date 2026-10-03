@@ -33,71 +33,11 @@ function renderSteps(){
  let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;
  document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`: `✅ SELESAI - AUTO SIMPAN...`;
 }
-<script>
-let flow = ["pc", "gl1", "gl2"]; // urutan scan
-let cur = 0;
-let res = {};
-let scannedList = [];
-let lastScanTime = 0;
-let isPause = false;
-
-function renderSteps(){
-  document.querySelectorAll('[id^="step-"]').forEach(el => el.style.display = 'none');
-  if(cur < flow.length){
-    let stepEl = document.getElementById('step-' + flow[cur]);
-    if(stepEl) stepEl.style.display = 'block';
-    document.getElementById('status').innerText = `Scan ${flow[cur].toUpperCase()}...`;
-  } else {
-    document.getElementById('status').innerText = `✅ Selesai`;
-  }
-}
-
-function renderTable(){
-  let html = "";
-  scannedList.forEach((item, i) => {
-    html += `<tr><td>${i+1}</td><td>${item.code}</td><td>${item.qty}x</td></tr>`;
-  });
-  document.getElementById('table-body').innerHTML = html;
-}
-
-function onScanSuccess(decodedText){
-  if(isPause) return;
-  const now = Date.now();
-  if(now - lastScanTime < 1500) return; 
-  lastScanTime = now;
-
-  if(navigator.vibrate) navigator.vibrate(200);
-
-  // Simpan buat PC GL1 GL2
-  if(cur < flow.length){
-    res[flow[cur]] = decodedText;
-  }
-  let existing = scannedList.find(item => item.code === decodedText);
-  if(existing){
-    existing.qty += 1;
-  } else {
-    scannedList.push({ code: decodedText, qty: 1 });
-  }
-
-  renderTable();
-  cur++;
-  renderSteps();
-
-  // Rem biar gak dobel pas baru diangkat
-  isPause = true;
-  setTimeout(()=>{
-    isPause = false;
-    if(cur >= flow.length){
-      setTimeout(()=>{
-        cur = 0;
-        res = {};
-        scannedList = [];
-        renderSteps();
-        renderTable();
-        document.getElementById('status').innerText = "Siap scan lagi";
-      }, 2000);
-    }
-  }, 1500);
+function onScanSuccess(decoded){
+ if(cur>=flow.length) return;
+ res[flow[cur]]=decoded; cur++; renderSteps();
+ if(navigator.vibrate) navigator.vibrate(200);
+ if(cur>=flow.length){ autoSave(); }
 }
 function inputManual(){
  let v=document.getElementById('manual').value.trim();
@@ -106,7 +46,7 @@ function inputManual(){
 function resetScan(){cur=0;res={};renderSteps();}
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
- html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+ html5QrcodeScanner.start({facingMode:"environment"},{fps:20,qrbox:{width:300,height:300}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
