@@ -31,7 +31,6 @@ const FLOWS={'GL':['QR CODE BAK','ID PC','ID GL 1','ID GL 2'],'KMS':['QR CODE BA
 let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;
 let lastScanTime = 0;
 let isPause = false;
-
 function renderSteps(){
  let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;
  document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`: `✅ SELESAI - AUTO SIMPAN...`;
@@ -39,7 +38,7 @@ function renderSteps(){
 function onScanSuccess(decoded){
  if(isPause) return;
  const now = Date.now();
- if(now - lastScanTime < 1500) return; 
+ if(now - lastScanTime < 800) return; 
  lastScanTime = now;
  isPause = true;
 
@@ -50,7 +49,7 @@ function onScanSuccess(decoded){
  if(cur>=flow.length){
    autoSave();
  } else {
-   setTimeout(()=>{ isPause = false; }, 1500);
+   setTimeout(()=>{ isPause = false; }, 800);
  }
 }
 function inputManual(){
@@ -65,7 +64,7 @@ function inputManual(){
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
- html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:500,height:500}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+ html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
