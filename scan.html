@@ -65,7 +65,7 @@ function inputManual(){
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
- html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:300,height:300}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+ html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:500,height:500}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
