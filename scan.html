@@ -56,7 +56,7 @@ function inputManual(){
  let v=document.getElementById('manual').value.trim();
  if(!v) return alert('Isi dulu');
  const now = Date.now();
- if(now - lastScanTime < 1500) return;
+ if(now - lastScanTime < 800) return;
  lastScanTime = now;
  onScanSuccess(v); document.getElementById('manual').value='';
  isPause = false;
@@ -64,7 +64,30 @@ function inputManual(){
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
- html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+ const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+     let minEdgePercentage = 0.7; // Kotak mengambil 70% dari area terkecil layar
+     let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+     let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+     
+     return {
+         width: qrboxSize,
+         height: qrboxSize
+     };
+ }
+  html5QrcodeScanner.start(
+   { facingMode: "environment" },
+   { 
+     fps: 20, // Dinaikkan ke 20 FPS agar tangkapan gambar lebih mulus & tidak blur saat goyang
+     qrbox: qrboxFunction, // Menggunakan fungsi dinamis di atas
+     experimentalFeatures: {
+         useBarCodeDetectorIfSupported: true // Membantu mempercepat pembacaan jenis barcode ID garis
+     }
+   },
+   onScanSuccess,
+   ()=>{}
+ ).catch(err=>{
+   document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';
+ });
 }
 async function autoSave(){
   if(html5QrcodeScanner){ try{ await html5QrcodeScanner.stop(); }catch(e){} }
