@@ -57,7 +57,7 @@ function inputManual(){
 }
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
 
-
+// === INI YANG TAK BENERIN BUAT HP KENTANG + LAMINATING ===
 function startCam(){
  html5QrcodeScanner = new Html5Qrcode("reader");
 
@@ -67,7 +67,7 @@ function startCam(){
          let size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.70);
          return { width: size, height: size };
      } else {
-         
+         // QR kecil laminating -> kotak kecil 200x200 biar fokus, bukan gepeng
          return { width: 200, height: 200 };
      }
  };
@@ -107,7 +107,7 @@ async function autoSave(){
     all[idx].BAGIAN=bagian;
   }
   localStorage.setItem('riwayat',JSON.stringify(all));
-  const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec;
+  const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzCr7BcKKAnlRkaExqpj0_euFXD9E4WBI7IkVhfiWmCrzuHdQLQJR3IUEIfMZwjh-g_8g/exec";
   let kirim = { QR_BAK: qr, ID_PC: res['ID PC']||'', ID_GL: res['ID GL 1']||'', ID_GL2: res['ID GL 2']||'', ID_KMS: res['ID KMS']||'', ID_PACK: res['ID PACK']||'', ID_BDL: res['ID BDL']||'', ID_BALL: res['ID BALL']||'', NO_BOX: res['NO BOX']||'', BAGIAN: bagian, TGL_KMS: tgl_input, STATUS_JEDA: status_jeda };
   document.getElementById('status').innerText="⏳ AUTO KIRIM KE SHEET...";
   try { await fetch(GOOGLE_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(kirim)}); }catch(e){}
