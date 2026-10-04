@@ -59,57 +59,72 @@ function ulangCurrent(){document.getElementById('resultBox').style.display='none
 function inputManual(){let v=document.getElementById('manual').value.trim();if(!v) return alert('Isi dulu');onScanSuccess(v);document.getElementById('manual').value='';}
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;tempScan="";document.getElementById('resultBox').style.display='none';renderSteps();try{html5QrcodeScanner.resume();}catch(e){}}
 
-// --- BAGIAN KAMERA YANG DIBENERIN MIN ---
+// --- GANTI FUNGSI startCam & gantiKamera YANG LAMA DENGAN INI ---
+
 async function startCam(){
-  html5QrcodeScanner=new Html5Qrcode("reader");
+  html5QrcodeScanner = new Html5Qrcode("reader");
+  const qrboxFn = (vw,vh)=>{let m=Math.min(vw,vh);return{width:Math.floor(m*0.75),height:Math.floor(m*0.75)};};
+
   try{
-    // Minta izin dulu biar label kamera kebaca
-    let tmp = await navigator.mediaDevices.getUserMedia({video:true});
-    tmp.getTracks().forEach(t=>t.stop());
+    // Cara resmi html5-qrcode buat list kamera - paling ampuh
+    let cameras = await Html5Qrcode.getCameras();
+    if(!cameras || cameras.length==0) throw "No camera";
+    allCams = cameras;
 
-    let devs = await navigator.mediaDevices.enumerateDevices();
-    allCams = devs.filter(d=>d.kind==='videoinput');
-    // Cari belakang - paling ampuh
-    let back = allCams.find(d=>/back|rear|belakang|environment/i.test(d.label));
-    if(!back && allCams.length>1) back = allCams[allCams.length-1]; // Samsung biasanya belakang = terakhir
-    if(!back) back = allCams[0];
-    curCamId = back.deviceId;
+    // Cari yang belakang: id / label mengandung back/rear/environment, kalo gak ada ambil yang terakhir (100% belakang di Android)
+    let back = cameras.find(c => /back|rear|environment|belakang/i.test(c.label));
+    if(!back){
+      // Trik jitu Android: kamera belakang biasanya index terakhir, depan index 0
+      back = cameras.length > 1? cameras[cameras.length-1] : cameras[0];
+    }
+    curCamId = back.id;
 
-    const qrboxFn=(vw,vh)=>{let m=Math.min(vw,vh);return{width:Math.floor(m*0.75),height:Math.floor(m*0.75)};};
+    console.log("PILIH KAMERA BELAKANG:", back.label, back.id);
 
     await html5QrcodeScanner.start(
-      {deviceId:{exact:curCamId}},
+      { deviceId: { exact: curCamId } },
       {
-        fps:12,
-        qrbox:qrboxFn,
-        formatsToSupport:[Html5QrcodeSupportedFormats.QR_CODE],
-        experimentalFeatures:{useBarCodeDetectorIfSupported:true},
-        videoConstraints:{width:{ideal:1920},height:{ideal:1080},focusMode:{ideal:"continuous"}}
+        fps: 12,
+        qrbox: qrboxFn,
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        videoConstraints: { width:{ideal:1920}, height:{ideal:1080}, focusMode:{ideal:"continuous"} }
       },
       onScanSuccess,()=>{}
     );
-    document.getElementById('status').innerText = "Kamera: "+(back.label||"Belakang")+" ✅";
+    document.getElementById('status').innerText = "✅ "+(back.label||"Kamera Belakang");
+
   }catch(err){
-  
-    console.log(err);
-    html5QrcodeScanner.start({facingMode:{exact:"environment"}},{fps:10,qrbox:250},onScanSuccess,()=>{})
-   .catch(()=>{ html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:250},onScanSuccess,()=>{}); });
+    console.log("Fallback facingMode", err);
+    // Fallback terakhir paksa environment
+    try{
+      await html5QrcodeScanner.start(
+        { facingMode: { exact: "environment" } },
+        { fps: 12, qrbox: 250 },
+        onScanSuccess,()=>{}
+      );
+    }catch(e){
+      // Kalo exact gagal, coba tanpa exact
+      await html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 12, qrbox: 250 },
+        onScanSuccess,()=>{}
+      );
+    }
   }
 }
 
-function paksaFokus(){html5QrcodeScanner.stop().then(()=>startCam());}
-function setZoom(z){try{html5QrcodeScanner.getRunningTrackCameraCapabilities().zoomFeature().apply(z);}catch(e){}}
-function toggleTorch(){try{let cap=html5QrcodeScanner.getRunningTrackCameraCapabilities();if(cap.torchFeature()){torchOn=!torchOn;cap.torchFeature().apply(torchOn);} }catch(e){}}
 async function gantiKamera(){
-  if(allCams.length<2) return alert("Cuma 1 kamera kedetek");
-  let idx = allCams.findIndex(d=>d.deviceId===curCamId);
-  let next = allCams[(idx+1)%allCams.length];
-  curCamId = next.deviceId;
-  await html5QrcodeScanner.stop();
-  startCam();
+  try{
+    let cameras = await Html5Qrcode.getCameras();
+    if(cameras.length < 2) return alert("Cuma 1 kamera");
+    let idx = cameras.findIndex(c=>c.id===curCamId);
+    let next = cameras[(idx+1)%cameras.length];
+    curCamId = next.id;
+    await html5QrcodeScanner.stop();
+    startCam();
+  }catch(e){ alert(e); }
 }
-
-
 async function autoSave(){
   if(html5QrcodeScanner){try{await html5QrcodeScanner.stop();}catch(e){}}
   let bagian=localStorage.getItem('bagian')||TYPE;
