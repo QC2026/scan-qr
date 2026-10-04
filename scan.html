@@ -80,30 +80,31 @@ function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;tempScan="";docum
 function startCam(){
   html5QrcodeScanner=new Html5Qrcode("reader");
   const qrboxFunction=function(vw,vh){
-    let t=flow[cur]||"";
-    // QR KECIL = kotaknya kecilin biar fokus
-    if(t.includes("QR CODE BAK")){return{width:250,height:250};}
-    return{width:220,height:220};
+    return {width:250, height:250};
   };
-  // SETTING KHUSUS HP KENTANG A21s
   html5QrcodeScanner.start(
-    {facingMode:"environment"},
+    { facingMode: { exact: "environment" } }, // PAKSA BELAKANG 100%
     {
-      fps:30, // WAJIB 30 biar A21s cepet fokus
+      fps:30,
       qrbox:qrboxFunction,
-      aspectRatio:1.0,
-      experimentalFeatures:{useBarCodeDetectorIfSupported:false},
       videoConstraints:{
+        facingMode: { exact: "environment" },
         width:{ideal:1920},
         height:{ideal:1080},
-        focusMode:{ideal:"continuous"},
-        advanced:[{focusMode:"continuous"}, {zoom:1.0}]
+        focusMode:{ideal:"continuous"}
       }
     },
     onScanSuccess,()=>{}
-  ).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+  ).catch(err=>{
+    // Kalo exact gagal, coba tanpa exact (fallback A21s)
+    console.log("Exact gagal, coba fallback", err);
+    html5QrcodeScanner.start(
+      { facingMode: "environment" },
+      { fps:30, qrbox:250 },
+      onScanSuccess,()=>{}
+    );
+  });
 }
-
 function paksaFokus(){
   // Trik A21s: stop-start lagi = auto refocus
   document.getElementById('status').innerText="⏳ PAKSA FOKUS...";
