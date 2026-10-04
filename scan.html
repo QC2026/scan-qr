@@ -11,28 +11,105 @@ body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12
 #reader{width:100%;border-radius:12px;overflow:hidden;background:#000;margin-top:12px}
 .btn{width:100%;padding:16px;border:none;border-radius:12px;font-weight:900;font-size:16px;margin-top:10px}
 input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;border-radius:8px;box-sizing:border-box;margin-top:8px}
+/* POPUP HASIL BARU */
+#resultBox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;box-sizing:border-box}
+.card{background:#1a1a1a;border:3px solid gold;border-radius:16px;padding:20px;text-align:center;margin-top:20%}
 </style></head><body>
 <div class="header"><div style="width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center"><img src="logo.png" style="width:100%;height:100%;border-radius:50%"></div><div class="pt">PT. URIPSUGIARTO</div></div>
 <div class="box">
 <div style="font-weight:900;color:#ffdf8a" id="tipe">SCAN</div>
 <div id="steps" style="margin-top:8px"></div>
 <div id="reader"></div>
+<button onclick="paksaFokus()" class="btn" style="background:#2563eb;color:white;margin-top:8px">🔍 TAP JIKA BLUR - PAKSA FOKUS A21s</button>
 <input id="manual" placeholder="Ketik manual jika QR rusak">
 <button onclick="inputManual()" class="btn" style="background:#333;color:white">INPUT MANUAL</button>
 <div id="status" style="text-align:center;margin-top:10px;color:#0f0;font-weight:900"></div>
-<button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG</button>
+<button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG SEMUA</button>
 </div>
 <button onclick="location.href='index.html'" class="btn" style="background:#b91c1c;color:white;border:2px solid gold">⬅ KEMBALI</button>
+
+<!-- POPUP CEK HASIL -->
+<div id="resultBox">
+  <div class="card">
+    <div id="resStep" style="color:gold;font-weight:900"></div>
+    <h2 style="color:white;margin:10px 0">Hasil Scan:</h2>
+    <h1 id="resValue" style="color:#0f0;word-break:break-all;font-size:28px;background:#000;padding:12px;border-radius:8px;border:1px solid #444"></h1>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="confirmScan()" class="btn" style="background:#22c55e;color:white;flex:1">✅ SESUAI, LANJUT</button>
+      <button onclick="ulangCurrent()" class="btn" style="background:#ef4444;color:white;flex:1">🔄 SALAH, ULANG</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const TYPE=(localStorage.getItem('scan_type')||'BALL').toUpperCase();
 document.getElementById('tipe').innerText='SCAN: '+TYPE;
 const FLOWS={'GL':['QR CODE BAK','ID PC','ID GL 1','ID GL 2'],'KMS':['QR CODE BAK','ID KMS'],'PACK':['QR CODE BAK','ID PACK'],'BDL':['QR CODE BAK','ID BDL'],'BALL':['QR CODE BAK','ID BALL','NO BOX']};
-let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;let lastScanTime=0;let isPause=false;
+let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;let lastScanTime=0;let isPause=false;let tempScan="";
+
 function renderSteps(){let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;document.getElementById('status').innerHTML=cur<flow.length?`Silahkan scan: <b style="color:gold">${flow[cur]}</b>`:`✅ SELESAI - AUTO SIMPAN...`;}
-function onScanSuccess(decoded){if(isPause) return;const now=Date.now();if(now-lastScanTime<1500) return;lastScanTime=now;isPause=true;if(cur>=flow.length) return;res[flow[cur]]=decoded;cur++;renderSteps();if(navigator.vibrate) navigator.vibrate(200);if(cur>=flow.length){autoSave();}else{setTimeout(()=>{isPause=false;},1500);}}
-function inputManual(){let v=document.getElementById('manual').value.trim();if(!v) return alert('Isi dulu');const now=Date.now();if(now-lastScanTime<1500) return;lastScanTime=now;onScanSuccess(v);document.getElementById('manual').value='';}
-function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;renderSteps();}
-function startCam(){html5QrcodeScanner=new Html5Qrcode("reader");const qrboxFunction=function(vw,vh){let t=flow[cur]||"";if(t.includes("QR CODE BAK")){let s=Math.floor(Math.min(vw,vh)*0.70);return{width:s,height:s};}return{width:200,height:200};};html5QrcodeScanner.start({facingMode:"environment"},{fps:10,qrbox:qrboxFunction,experimentalFeatures:{useBarCodeDetectorIfSupported:false}},onScanSuccess,()=>{}).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});}
+
+function onScanSuccess(decoded){
+  if(isPause) return;
+  const now=Date.now();if(now-lastScanTime<1500) return;
+  lastScanTime=now;isPause=true;tempScan=decoded;
+  // PAUSE + TAMPILKAN HASIL
+  if(html5QrcodeScanner) html5QrcodeScanner.pause(true);
+  document.getElementById('resStep').innerText=flow[cur];
+  document.getElementById('resValue').innerText=decoded;
+  document.getElementById('resultBox').style.display='block';
+  if(navigator.vibrate) navigator.vibrate([200,100,200]);
+}
+
+function confirmScan(){
+  document.getElementById('resultBox').style.display='none';
+  res[flow[cur]]=tempScan;cur++;renderSteps();
+  if(cur>=flow.length){autoSave();}
+  else{isPause=false;if(html5QrcodeScanner) html5QrcodeScanner.resume();lastScanTime=Date.now();}
+}
+
+function ulangCurrent(){
+  document.getElementById('resultBox').style.display='none';
+  isPause=false;tempScan="";lastScanTime=0;
+  if(html5QrcodeScanner) html5QrcodeScanner.resume();
+}
+
+function inputManual(){let v=document.getElementById('manual').value.trim();if(!v) return alert('Isi dulu');onScanSuccess(v);document.getElementById('manual').value='';}
+function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;tempScan="";document.getElementById('resultBox').style.display='none';renderSteps();if(html5QrcodeScanner){try{html5QrcodeScanner.resume();}catch(e){}}}
+
+function startCam(){
+  html5QrcodeScanner=new Html5Qrcode("reader");
+  const qrboxFunction=function(vw,vh){
+    let t=flow[cur]||"";
+    // QR KECIL = kotaknya kecilin biar fokus
+    if(t.includes("QR CODE BAK")){return{width:250,height:250};}
+    return{width:220,height:220};
+  };
+  // SETTING KHUSUS HP KENTANG A21s
+  html5QrcodeScanner.start(
+    {facingMode:"environment"},
+    {
+      fps:30, // WAJIB 30 biar A21s cepet fokus
+      qrbox:qrboxFunction,
+      aspectRatio:1.0,
+      experimentalFeatures:{useBarCodeDetectorIfSupported:false},
+      videoConstraints:{
+        width:{ideal:1920},
+        height:{ideal:1080},
+        focusMode:{ideal:"continuous"},
+        advanced:[{focusMode:"continuous"}, {zoom:1.0}]
+      }
+    },
+    onScanSuccess,()=>{}
+  ).catch(err=>{document.getElementById('reader').innerHTML='<div style="color:red;padding:20px">Kamera gagal: '+err+'</div>';});
+}
+
+function paksaFokus(){
+  // Trik A21s: stop-start lagi = auto refocus
+  document.getElementById('status').innerText="⏳ PAKSA FOKUS...";
+  html5QrcodeScanner.stop().then(()=>{startCam(); setTimeout(()=>{document.getElementById('status').innerText="Silahkan scan: "+flow[cur];},1000);});
+}
+
 async function autoSave(){
   if(html5QrcodeScanner){try{await html5QrcodeScanner.stop();}catch(e){}}
   let bagian=localStorage.getItem('bagian')||TYPE;
