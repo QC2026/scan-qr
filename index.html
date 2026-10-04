@@ -2,38 +2,31 @@
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PT URIP SUGIARTO</title>
 <style>
-body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12px}
-/* HEADER SAMA PERSIS PUNYA SAMPEAN */
+body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12px}
 .header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:10px}
 .pt{background:#b91c1c;border:2px solid gold;border-radius:10px;padding:8px 12px;color:white;font-weight:900;flex:1;text-align:center}
-
-.box{background:#111;border:2px solid #c9a84c;border-radius:12px;padding:12px;margin-top:12px}
-
-/* BARU - GRID KOTAK GOLD */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.box{background:#111;border:2px solid #c9a84c;border-radius:12px;padding:14px;margin-top:12px}
+.scan-title{font-weight:900;font-size:20px;color:#ffdf8a;letter-spacing:1px;margin:0}
+.scan-sub{font-size:12px;color:#c9a84c;margin-top:4px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .card{
-  background:linear-gradient(145deg,#1e1e1e,#0a0a0a);
+  background:linear-gradient(145deg,#1c1c1c,#0e0e0e);
   border:2px solid #c9a84c;border-radius:16px;
   aspect-ratio:1/1;display:flex;flex-direction:column;
   align-items:center;justify-content:center;text-align:center;
-  padding:8px;box-shadow:0 0 10px rgba(201,168,76,.25)
+  padding:10px;box-shadow:0 0 12px rgba(201,168,76,.18)
 }
-.card:active{transform:scale(0.96)}
-.card img{width:58px;height:58px;object-fit:contain;margin-bottom:6px;filter:drop-shadow(0 0 4px gold)}
-.card .lbl{font-weight:900;font-size:13px;color:#ffdf8a}
-.card .sub{font-size:9px;color:#bbb;margin-top:3px;line-height:1.2}
-
-/* GL paling gold biar menonjol */
+.card:active{transform:scale(0.95)}
+.card .icon{font-size:50px;margin-bottom:6px;filter:drop-shadow(0 0 5px gold)}
+.card .lbl{font-weight:900;font-size:14px;color:#ffdf8a}
+.card .sub{font-size:10px;color:#aaa;margin-top:4px;line-height:1.2}
 .card-gl{background:linear-gradient(180deg,#ffd700,#c9a84c);border-color:white}
 .card-gl .lbl,.card-gl .sub{color:black}
-.card-gl img{filter:none}
-
-.full{grid-column:span 2;aspect-ratio:2/0.85;flex-direction:row;gap:12px}
-.full img{margin-bottom:0}
-
-.btn-r{width:100%;padding:16px;border-radius:12px;background:#222;color:white;border:2px solid #c9a84c;font-weight:900;margin-top:14px}
+.card-gl .icon{filter:none}
+.full{grid-column:span 2;aspect-ratio:2/0.85;flex-direction:row;gap:14px}
+.full .icon{margin-bottom:0}
+.btn-r{width:100%;padding:16px;border-radius:12px;background:#222;color:white;border:2px solid #c9a84c;font-weight:900;margin-top:16px}
 </style></head><body>
-
 
 <div class="header">
   <div style="width:50px;height:50px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center"><img src="logo.png" style="width:100%;height:100%;border-radius:50%"></div>
@@ -41,36 +34,37 @@ body{margin:0;background:#0a0a0a;color:#ffd700;font-family:sans-serif;padding:12
 </div>
 
 <div class="box">
-<h3 style="margin:0;text-align:center;color:#ffdf8a">PILIH BAGIAN</h3>
+  <div class="scan-title">SCAN MENU</div>
+  <div class="scan-sub">Pilih metode pemindaian yang tersedia</div>
 
-<div class="grid">
-  <div class="card card-gl" onclick="go('GL')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1995/1995515.png">
-    <div class="lbl">1️⃣ SCAN GL</div>
-    <div class="sub">QR BAK + ID PC + GL 1 & 2</div>
+  <div class="grid">
+    <div class="card card-gl" onclick="go('GL')">
+      <div class="icon">🌿</div>
+      <div class="lbl">SCAN GL</div>
+      <div class="sub">QR BAK + ID PC<br>+ ID GL 1 + ID GL 2</div>
+    </div>
+    <div class="card" onclick="go('KMS')">
+      <div class="icon">🖍️</div>
+      <div class="lbl">SCAN KMS</div>
+      <div class="sub">QR BAK + ID KMS</div>
+    </div>
+    <div class="card" onclick="go('PACK')">
+      <div class="icon">🔐</div>
+      <div class="lbl">SCAN PACK</div>
+      <div class="sub">QR BAK + ID PACK</div>
+    </div>
+    <div class="card" onclick="go('BDL')">
+      <div class="icon">💶</div>
+      <div class="lbl">SCAN BDL</div>
+      <div class="sub">QR BAK + ID BDL</div>
+    </div>
+    <div class="card full" onclick="go('BALL')">
+      <div class="icon">📦</div>
+      <div><div class="lbl">SCAN BALL</div><div class="sub">QR BAK + ID BALL + NO BOX</div></div>
+    </div>
   </div>
-  <div class="card" onclick="go('KMS')">
-    <img src="https://cdn-icons-png.flaticon.com/512/679/679922.png">
-    <div class="lbl">2️⃣ SCAN KMS</div>
-    <div class="sub">QR BAK + ID KMS</div>
-  </div>
-  <div class="card" onclick="go('PACK')">
-    <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png">
-    <div class="lbl">3️⃣ SCAN PACK</div>
-    <div class="sub">QR BAK + ID PACK</div>
-  </div>
-  <div class="card" onclick="go('BDL')">
-    <img src="https://cdn-icons-png.flaticon.com/512/4600/4600927.png">
-    <div class="lbl">4️⃣ SCAN BDL</div>
-    <div class="sub">QR BAK + ID BDL</div>
-  </div>
-  <div class="card full" onclick="go('BALL')">
-    <img src="https://cdn-icons-png.flaticon.com/512/803/803211.png">
-    <div><div class="lbl">5️⃣ SCAN BALL</div><div class="sub">QR BAK + ID BALL + NO BOX</div></div>
-  </div>
-</div>
 
-<button class="btn-r" onclick="location.href='riwayat.html'">📋 LIHAT RIWAYAT</button>
+  <button class="btn-r" onclick="location.href='riwayat.html'">📋 LIHAT RIWAYAT</button>
 </div>
 
 <script>function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}</script>
