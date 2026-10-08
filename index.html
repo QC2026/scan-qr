@@ -64,30 +64,18 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
     </div>
 </div>
 
-  <button type="button" id="btnKeluar" class="btn-r" style="display:block !important;pointer-events:auto !important;position:relative;z-index:9999;text-align:center;background:#000 !important;border:2px solid #b91c1c;color:white !important;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;margin-bottom:30px;width:100%">
-    ❌ KELUAR APLIKASI
-  </button>
-</div>
+  <button type="button" onclick="keluarApp()" style="display:block;text-align:center;background:#000;border:2px solid #b91c1c;color:white;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;width:100%">
+  ❌ KELUAR APLIKASI
+</button>
 
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
 
 function keluarApp(){
-  try{ if(window.webintoapp && webintoapp.closeApp){ webintoapp.closeApp(); return; } }catch(e){}
-  try{ if(window.Android && Android.closeApp){ Android.closeApp(); return; } }catch(e){}
-  try{ if(window.Android && Android.finishAffinity){ Android.finishAffinity(); return; } }catch(e){}
-  try{ if(window.Android && Android.finish){ Android.finish(); return; } }catch(e){}
-  try{ if(window.Android && Android.moveTaskToBack){ Android.moveTaskToBack(true); return; } }catch(e){}
-  try{ navigator.app.exitApp(); return; }catch(e){}
-  try{ window.close(); }catch(e){}
+  // ini yang dikenali WebIntoApp
+  try{ webintoapp.closeApp(); }catch(e){}
+  try{ webintoapp.exitApp(); }catch(e){}
+  try{ Android.closeApp(); }catch(e){}
 }
-
-document.addEventListener('DOMContentLoaded', function(){
-  var btn = document.getElementById('btnKeluar');
-  if(btn){
-    btn.addEventListener('click', keluarApp);
-    btn.addEventListener('touchend', keluarApp);
-  }
-});
 </script>
   </body></html>
