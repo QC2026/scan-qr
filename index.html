@@ -68,20 +68,29 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
     ❌ KELUAR APLIKASI
   </button>
 </div>
-
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
 
 function keluarApp(){
-  alert('tombol keluar di klik'); // buat tes, kalau muncul berarti tombol aktif
-  try{ if(window.webintoapp && webintoapp.closeApp){ webintoapp.closeApp(); return; } }catch(e){}
-  try{ if(window.Android && Android.closeApp){ Android.closeApp(); return; } }catch(e){}
-  try{ navigator.app.exitApp(); return; }catch(e){}
-  try{ window.close(); return; }catch(e){}
+  try{ if(window.webintoapp && webintoapp.closeApp){ webintoapp.closeApp(); } }catch(e){}
+  try{ if(window.Android && Android.closeApp){ Android.closeApp(); } }catch(e){}
+  
+  // paksa keluar total
+  try{ Android.finishAffinity(); }catch(e){}
+  try{ Android.finish(); }catch(e){}
+  
+  // kalau semua ditolak, minimal keluar ke home
+  setTimeout(function(){
+    try{ 
+      // ini bikin app ke minimize kayak pencet home
+      if(window.Android && Android.moveTaskToBack){
+        Android.moveTaskToBack(true);
+      } else {
+        window.history.back();
+      }
+    }catch(e){}
+  }, 200);
 }
-
-// paksa 2 cara klik
 document.getElementById('btnKeluar').addEventListener('click', keluarApp);
-document.getElementById('btnKeluar').addEventListener('touchend', keluarApp);
 </script>
 </body></html>
