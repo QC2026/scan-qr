@@ -62,35 +62,32 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
       <div class="icon">📦</div>
       <div><div class="lbl">SCAN BALL</div><div class="sub">QR BAK + ID BALL + NO BOX</div></div>
     </div>
-   </div>
+</div>
 
   <button type="button" id="btnKeluar" class="btn-r" style="display:block !important;pointer-events:auto !important;position:relative;z-index:9999;text-align:center;background:#000 !important;border:2px solid #b91c1c;color:white !important;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;margin-bottom:30px;width:100%">
     ❌ KELUAR APLIKASI
   </button>
 </div>
+
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
 
 function keluarApp(){
-  try{ if(window.webintoapp && webintoapp.closeApp){ webintoapp.closeApp(); } }catch(e){}
-  try{ if(window.Android && Android.closeApp){ Android.closeApp(); } }catch(e){}
-  
-  // paksa keluar total
-  try{ Android.finishAffinity(); }catch(e){}
-  try{ Android.finish(); }catch(e){}
-  
-  // kalau semua ditolak, minimal keluar ke home
-  setTimeout(function(){
-    try{ 
-      // ini bikin app ke minimize kayak pencet home
-      if(window.Android && Android.moveTaskToBack){
-        Android.moveTaskToBack(true);
-      } else {
-        window.history.back();
-      }
-    }catch(e){}
-  }, 200);
+  try{ if(window.webintoapp && webintoapp.closeApp){ webintoapp.closeApp(); return; } }catch(e){}
+  try{ if(window.Android && Android.closeApp){ Android.closeApp(); return; } }catch(e){}
+  try{ if(window.Android && Android.finishAffinity){ Android.finishAffinity(); return; } }catch(e){}
+  try{ if(window.Android && Android.finish){ Android.finish(); return; } }catch(e){}
+  try{ if(window.Android && Android.moveTaskToBack){ Android.moveTaskToBack(true); return; } }catch(e){}
+  try{ navigator.app.exitApp(); return; }catch(e){}
+  try{ window.close(); }catch(e){}
 }
-document.getElementById('btnKeluar').addEventListener('click', keluarApp);
+
+document.addEventListener('DOMContentLoaded', function(){
+  var btn = document.getElementById('btnKeluar');
+  if(btn){
+    btn.addEventListener('click', keluarApp);
+    btn.addEventListener('touchend', keluarApp);
+  }
+});
 </script>
-</body></html>
+  </body></html>
