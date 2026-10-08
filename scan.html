@@ -99,7 +99,7 @@ async function autoSave(){
   if(idx==-1){all.push({QR_BAK:qr,ID_PC:res['ID PC']||'',ID_GL:res['ID GL 1']||'',ID_GL2:res['ID GL 2']||'',ID_KMS:TYPE=='KMS'?res['ID KMS']||'':'',ID_PACK:TYPE=='PACK'?res['ID PACK']||'':'',ID_BDL:TYPE=='BDL'?res['ID BDL']||'':'',ID_BALL:TYPE=='BALL'?(res['ID BALL']||res['NO BOX']||''):'',TGL_GL:TYPE=='GL'?tgl_input:'',TGL_KMS:TYPE=='KMS'?tgl_input:'',BAGIAN:bagian,TANGGAL:tgl_input});}
   else{if(TYPE=='KMS'){all[idx].ID_KMS=res['ID KMS']||'';all[idx].TGL_KMS=tgl_input;}if(TYPE=='PACK'){all[idx].ID_PACK=res['ID PACK']||'';}if(TYPE=='BDL'){all[idx].ID_BDL=res['ID BDL']||'';}if(TYPE=='BALL'){all[idx].ID_BALL=res['ID BALL']||res['NO BOX']||'';}all[idx].BAGIAN=bagian;}
   localStorage.setItem('riwayat',JSON.stringify(all));
-  const GOOGLE_URL="https://script.google.com/macros/s/AKfycbz-QZefe9rvUl6Q6mXQHZmRgNww_b4PxxfaokevzX1_BchKSBXnGWkRi3I3KZimolrbpA/exec";
+  const GOOGLE_URL="https://script.google.com/macros/s/AKfycbx3KgneWB4k-_1VO723eebNrkK1ns299GabVrKQ35n53PDtMr4Tv9BpW_yaYJr5G9Ct/exec";
   let kirim={QR_BAK:qr,ID_PC:res['ID PC']||'',ID_GL:res['ID GL 1']||'',ID_GL2:res['ID GL 2']||'',ID_KMS:res['ID KMS']||'',ID_PACK:res['ID PACK']||'',ID_BDL:res['ID BDL']||'',ID_BALL:res['ID BALL']||'',NO_BOX:res['NO BOX']||'',BAGIAN:bagian,TGL_KMS:tgl_input};
   document.getElementById('status').innerText="⏳ AUTO KIRIM...";
   try{await fetch(GOOGLE_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(kirim)});}catch(e){}
