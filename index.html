@@ -70,14 +70,20 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
 
 <script>function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
 function keluarApp(){
-  if(confirm("Yakin mau keluar aplikasi ?")){
-    // JURUS KHUSUS WEBINTOAPP
-    window.location.href = "webintoapp://close";
-    // fallback kalau di tes di chrome
+  if(confirm("Yakin mau keluar aplikasi min?")){
+    try{ window.location.href = "webintoapp://close"; }catch(e){}
+    try{ if(window.Android) Android.closeApp(); }catch(e){}
+    try{ if(navigator.app) navigator.app.exitApp(); }catch(e){}
+  
     setTimeout(()=>{
-      window.close();
-      window.location.href="about:blank";
-    }, 500);
+      document.body.innerHTML = `
+        <div style="background:#080808;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:gold;font-family:sans-serif;text-align:center;padding:20px">
+          <div style="font-size:60px">👋</div>
+          <h2>Terima Kasih Min</h2>
+          <p style="color:#aaa">Aplikasi sudah selesai.<br>Silakan tekan tombol BACK HP 2x untuk keluar.</p>
+          <button onclick="window.location.href='about:blank'" style="margin-top:20px;padding:16px 30px;background:#b91c1c;color:white;border:2px solid gold;border-radius:12px;font-weight:900">TUTUP LAYAR</button>
+        </div>`;
+    }, 600);
   }
 }
 </script>
