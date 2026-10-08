@@ -2,7 +2,7 @@
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PT URIP SUGIARTO</title>
 <style>
-body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12px}
+body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12px;padding-bottom:90px}
 .header{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1a1a1a,#000);border:2px solid #c9a84c;border-radius:12px;padding:10px}
 .pt{background:#b91c1c;border:2px solid gold;border-radius:10px;padding:8px 12px;color:white;font-weight:900;flex:1;text-align:center}
 .box{background:#111;border:2px solid #c9a84c;border-radius:12px;padding:14px;margin-top:12px}
@@ -25,7 +25,11 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
 .card-gl .icon{filter:none}
 .full{grid-column:span 2;aspect-ratio:2/0.85;flex-direction:row;gap:14px}
 .full .icon{margin-bottom:0}
-.btn-r{width:100%;padding:16px;border-radius:12px;background:#222;color:white;border:2px solid #c9a84c;font-weight:900;margin-top:16px}
+.btn-keluar{
+  position:fixed;bottom:12px;left:12px;right:12px;z-index:99999;
+  width:auto;padding:16px;border-radius:12px;background:#000;
+  color:white;border:2px solid #b91c1c;font-weight:900;text-align:center;
+}
 </style></head><body>
 
 <div class="header">
@@ -62,20 +66,22 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
       <div class="icon">📦</div>
       <div><div class="lbl">SCAN BALL</div><div class="sub">QR BAK + ID BALL + NO BOX</div></div>
     </div>
+  </div>
 </div>
 
-  <button type="button" onclick="keluarApp()" style="display:block;text-align:center;background:#000;border:2px solid #b91c1c;color:white;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;width:100%">
+<div class="btn-keluar" onclick="keluarApp()">
   ❌ KELUAR APLIKASI
-</button>
+</div>
 
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
-
 function keluarApp(){
-  // ini yang dikenali WebIntoApp
-  try{ webintoapp.closeApp(); }catch(e){}
-  try{ webintoapp.exitApp(); }catch(e){}
-  try{ Android.closeApp(); }catch(e){}
+  if(confirm('Yakin mau keluar aplikasi?')){
+    try{ webintoapp.closeApp(); return; }catch(e){}
+    try{ webintoapp.exitApp(); return; }catch(e){}
+    try{ Android.closeApp(); return; }catch(e){}
+    try{ window.close(); }catch(e){}
+  }
 }
 </script>
-  </body></html>
+</body></html>
