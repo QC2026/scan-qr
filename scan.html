@@ -33,26 +33,13 @@ input{width:100%;padding:12px;background:#222;border:1px solid #444;color:white;
 <button onclick="resetScan()" class="btn" style="background:#222;color:white">🔄 ULANG SEMUA</button>
 </div>
 <button onclick="location.href='index.html'" class="btn" style="background:#b91c1c;color:white;border:2px solid gold">⬅ KEMBALI</button>
-
-<div id="resultBox">
-  <div class="card">
-    <div id="resStep" style="color:gold;font-weight:900;font-size:14px"></div>
-    <h2 style="color:white;margin:8px 0">Hasil Scan:</h2>
-    <h1 id="resValue" style="color:#0f0;word-break:break-all;font-size:26px;background:#000;padding:14px;border-radius:8px;border:1px solid #444"></h1>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button onclick="confirmScan()" class="btn" style="background:#22c55e;color:white;flex:1">✅ SESUAI</button>
-      <button onclick="ulangCurrent()" class="btn" style="background:#ef4444;color:white;flex:1">🔄 SALAH, ULANG</button>
-    </div>
-  </div>
-</div>
-
+<div id="resultBox"><div class="card"><div id="resStep" style="color:gold;font-weight:900;font-size:14px"></div><h2 style="color:white;margin:8px 0">Hasil Scan:</h2><h1 id="resValue" style="color:#0f0;word-break:break-all;font-size:26px;background:#000;padding:14px;border-radius:8px;border:1px solid #444"></h1><div style="display:flex;gap:10px;margin-top:18px"><button onclick="confirmScan()" class="btn" style="background:#22c55e;color:white;flex:1">✅ SESUAI</button><button onclick="ulangCurrent()" class="btn" style="background:#ef4444;color:white;flex:1">🔄 SALAH, ULANG</button></div></div></div>
 <script>
 const TYPE=(localStorage.getItem('scan_type')||'BALL').toUpperCase();
 document.getElementById('tipe').innerText='SCAN: '+TYPE;
 const FLOWS={'GL':['QR CODE BAK','ID PC','ID GL 1','ID GL 2'],'KMS':['QR CODE BAK','ID KMS'],'PACK':['QR CODE BAK','ID PACK'],'BDL':['QR CODE BAK','ID BDL'],'BALL':['QR CODE BAK','ID BALL','NO BOX']};
 let flow=FLOWS[TYPE]||FLOWS['BALL'];let cur=0;let res={};let html5QrcodeScanner;let lastScanTime=0;let isPause=false;let tempScan="";let torchOn=false;
 let allCams=[], curCamId=null, useBackMode=true;
-
 function renderSteps(){let h='';flow.forEach((s,i)=>{let cls=i<cur?'done':i==cur?'active':'wait';let txt=i<cur?'✓ '+s:i==cur?'▶ '+s:s;h+=`<span class="step ${cls}">${txt}</span>`;});document.getElementById('steps').innerHTML=h;document.getElementById('status').innerHTML=cur<flow.length?`Scan: <b style="color:gold">${flow[cur]}</b>`:`✅ SELESAI...`;}
 function onScanSuccess(decoded){if(isPause) return;const now=Date.now();if(now-lastScanTime<1200) return;lastScanTime=now;isPause=true;tempScan=decoded;try{html5QrcodeScanner.pause(true);}catch(e){} document.getElementById('resStep').innerText=flow[cur];document.getElementById('resValue').innerText=decoded;document.getElementById('resultBox').style.display='block';if(navigator.vibrate) navigator.vibrate([200,100,200]);}
 function confirmScan(){document.getElementById('resultBox').style.display='none';res[flow[cur]]=tempScan;cur++;renderSteps();if(cur>=flow.length){autoSave();}else{isPause=false;try{html5QrcodeScanner.resume();}catch(e){} lastScanTime=Date.now();}}
@@ -60,81 +47,48 @@ function ulangCurrent(){document.getElementById('resultBox').style.display='none
 function inputManual(){let v=document.getElementById('manual').value.trim();if(!v) return alert('Isi dulu');onScanSuccess(v);document.getElementById('manual').value='';}
 function resetScan(){cur=0;res={};lastScanTime=0;isPause=false;tempScan="";document.getElementById('resultBox').style.display='none';renderSteps();try{html5QrcodeScanner.resume();}catch(e){}}
 
-// --- FIX ANTI KAMERA DEPAN SEMUA MERK ---
 async function startCam(){
   html5QrcodeScanner = new Html5Qrcode("reader");
-
-  // 1. WAJIB izin environment dulu biar browser tau kita mau belakang
+  const config = {
+    fps: 25,
+    qrbox: { width: 350, height: 350 },
+    aspectRatio: 1.777778,
+    formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+  };
   try{
-    let tmp = await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:"environment"}}});
-    tmp.getTracks().forEach(t=>t.stop());
-  }catch{
-    try{ let tmp2 = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); tmp2.getTracks().forEach(t=>t.stop()); }catch{}
-  }
-
-  try{
-    // 2. PAKSA BELAKANG DENGAN FACINGMODE EXACT - INI YANG PALING AMPUH DI SEMUA MERK
-    await html5QrcodeScanner.start(
-      { facingMode: { exact: "environment" } },
-      { fps: 10, qrbox: 250, aspectRatio: 1.0 },
-      onScanSuccess,()=>{}
-    );
-    document.getElementById('status').innerText = "✅ camera 0, facing back";
-    useBackMode = true;
+    await html5QrcodeScanner.start({ facingMode: { exact: "environment" } }, config, onScanSuccess, ()=>{});
+    document.getElementById('status').innerText = "✅ 1080p QR ONLY - AUTO ZOOM";
+    useBackMode=true;
+    setTimeout(()=>setZoom(2), 800);
     return;
   }catch(e1){
-    console.log("exact environment gagal", e1);
     try{
-      await html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        onScanSuccess,()=>{}
-      );
-      document.getElementById('status').innerText = "✅ camera 0, facing back";
-      useBackMode = true;
+      await html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, ()=>{});
+      document.getElementById('status').innerText = "✅ Kamera Belakang";
+      setTimeout(()=>setZoom(2), 800);
       return;
     }catch(e2){
-      console.log("environment gagal, coba list kamera", e2);
+      try{
+        let cams = await Html5Qrcode.getCameras();
+        allCams=cams;
+        let back=cams[cams.length-1];
+        let found=cams.find(c=>/back|rear/i.test(c.label));
+        if(found) back=found;
+        curCamId=back.id;
+        await html5QrcodeScanner.start({ deviceId: { exact: curCamId } }, config, onScanSuccess, ()=>{});
+        document.getElementById('status').innerText = "✅ "+(back.label||"Belakang");
+        setTimeout(()=>setZoom(2), 800);
+      }catch(e3){
+        document.getElementById('status').innerText = "❌ Kamera diblokir";
+      }
     }
   }
-
-  // 3. Fallback terakhir kalo facingMode di blokir - baru pake deviceId paling belakang
-  try{
-    let cams = await Html5Qrcode.getCameras();
-    allCams = cams;
-    let back = cams[cams.length-1]; // ambil paling akhir = belakang
-    if(cams.length>1){
-      let found = cams.find(c=>/back|rear/i.test(c.label));
-      if(found) back = found;
-    }
-    curCamId = back.id;
-    await html5QrcodeScanner.start(
-      { deviceId: { exact: curCamId } },
-      { fps: 10, qrbox: 250 },
-      onScanSuccess,()=>{}
-    );
-    document.getElementById('status').innerText = "✅ "+(back.label||"camera belakang");
-  }catch(e3){
-    document.getElementById('status').innerText = "❌ Kamera diblokir, aktifkan izin";
-  }
 }
-
-function paksaFokus(){html5QrcodeScanner.stop().then(()=>startCam());}
-function setZoom(z){try{html5QrcodeScanner.getRunningTrackCameraCapabilities().zoomFeature().apply(z);}catch(e){}}
-function toggleTorch(){try{let cap=html5QrcodeScanner.getRunningTrackCameraCapabilities();if(cap.torchFeature()){torchOn=!torchOn;cap.torchFeature().apply(torchOn);} }catch(e){}}
-async function gantiKamera(){
-  // Tombol ganti sekarang ganti antara depan - belakang
-  try{
-    await html5QrcodeScanner.stop();
-  }catch{}
-  useBackMode =!useBackMode;
-  if(useBackMode){
-    startCam();
-  }else{
-    await html5QrcodeScanner.start({facingMode:"user"},{fps:10,qrbox:250},onScanSuccess,()=>{});
-    document.getElementById('status').innerText = "📷 camera depan";
-  }
-}
+function setZoom(z){try{const track=html5QrcodeScanner.getRunningTrack();const cap=track.getCapabilities();if(cap.zoom){const max=cap.zoom.max;const want=Math.min(z,max);track.applyConstraints({advanced:[{zoom:want}]});document.getElementById('status').innerText=`🔍 Zoom ${want}x`;}}catch(e){console.log(e)}}
+function paksaFokus(){try{const track=html5QrcodeScanner.getRunningTrack();track.applyConstraints({advanced:[{focusMode:"continuous"}]});document.getElementById('status').innerText="🔍 FOKUS CONTINUOUS ON";}catch{html5QrcodeScanner.stop().then(()=>startCam());}}
+function toggleTorch(){try{const track=html5QrcodeScanner.getRunningTrack();const cap=track.getCapabilities();if(cap.torch){torchOn=!torchOn;track.applyConstraints({advanced:[{torch:torchOn}]});}}catch(e){}}
+async function gantiKamera(){try{await html5QrcodeScanner.stop();}catch{}useBackMode=!useBackMode;if(useBackMode){startCam();}else{await html5QrcodeScanner.start({facingMode:"user"},{fps:25,qrbox:{width:350,height:350}},onScanSuccess,()=>{});document.getElementById('status').innerText="📷 Depan";}}
 
 async function autoSave(){
   if(html5QrcodeScanner){try{await html5QrcodeScanner.stop();}catch(e){}}
@@ -152,5 +106,4 @@ async function autoSave(){
   alert('✅ Tersimpan! '+TYPE+' - '+qr);location.href='index.html';
 }
 renderSteps();startCam();
-</script>
-</body></html>
+</script></body></html>
