@@ -64,20 +64,21 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
     </div>
   </div>
 
- <button class="btn-r" onclick="location.href='riwayat.html'">📋 LIHAT RIWAYAT</button>
+  </div>
 
- <button class="btn-r" onclick="keluarApp()" style="display:block !important;text-align:center;background:#000 !important;border:2px solid #b91c1c;color:white !important;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;margin-bottom:30px;width:100%">
-  ❌ KELUAR APLIKASI
-</button>
+  <button type="button" class="btn-r" onclick="keluarApp()" style="display:block !important;text-align:center;background:#000 !important;border:2px solid #b91c1c;color:white !important;padding:16px;border-radius:12px;font-weight:900;margin-top:16px;margin-bottom:30px;width:100%">
+    ❌ KELUAR APLIKASI
+  </button>
 </div>
 
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
+
 function keluarApp(){
-  try{ if(window.webintoapp){webintoapp.closeApp();} }catch(e){}
-  try{ navigator.app.exitApp(); }catch(e){}
+  try{ if(window.webintoapp){ webintoapp.closeApp(); return; } }catch(e){}
+  try{ if(window.Android){ Android.closeApp(); return; } }catch(e){}
+  try{ navigator.app.exitApp(); return; }catch(e){}
   try{ window.close(); }catch(e){}
-  setTimeout(()=>{ location.href='webintoapp://close'; }, 300);
 }
 </script>
  
