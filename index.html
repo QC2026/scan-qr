@@ -65,7 +65,20 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
   </div>
 
   <button class="btn-r" onclick="location.href='riwayat.html'">📋 LIHAT RIWAYAT</button>
+  <button class="btn-r" onclick="keluarApp()" style="background:#b91c1c;border-color:gold;color:white;margin-top:10px">❌ KELUAR APLIKASI</button>
 </div>
 
-<script>function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}</script>
+<script>function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
+function keluarApp(){
+  if(confirm("Yakin mau keluar aplikasi min?")){
+    // JURUS KHUSUS WEBINTOAPP
+    window.location.href = "webintoapp://close";
+    // fallback kalau di tes di chrome
+    setTimeout(()=>{
+      window.close();
+      window.location.href="about:blank";
+    }, 500);
+  }
+}
+</script>
 </body></html>
