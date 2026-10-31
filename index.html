@@ -25,6 +25,7 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
 .card-gl .icon{filter:none}
 .full{grid-column:span 2;aspect-ratio:2/0.85;flex-direction:row;gap:14px}
 .full .icon{margin-bottom:0}
+.card-riwayat{grid-column:span 2;aspect-ratio:2/0.6;background:transparent;border-style:dashed}
 </style></head><body>
 
 <div class="header">
@@ -61,10 +62,15 @@ body{margin:0;background:#080808;color:#ffd700;font-family:sans-serif;padding:12
       <div class="icon">📦</div>
       <div><div class="lbl">SCAN BALL</div><div class="sub">QR BAK + ID BALL + NO BOX</div></div>
     </div>
+    <div class="card full card-riwayat" onclick="location.href='riwayat.html'">
+      <div class="icon">📋</div>
+      <div><div class="lbl">RIWAYAT</div><div class="sub">LIHAT HASIL SCAN TERSIMPAN</div></div>
+    </div>
   </div>
 </div>
 
 <script>
 function go(t){localStorage.setItem('scan_type',t);location.href='scan.html';}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js?v=4')}
 </script>
 </body></html>
